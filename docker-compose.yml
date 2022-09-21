@@ -1,0 +1,32 @@
+version : "3"
+
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8000:80"
+    depends_on:
+      - db 
+  db:
+    container_name: "database"
+    image: "citusdata/citus:11.0"
+    ports: 
+      - "5432:5432"
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
+    restart: always
+    volumes:
+    # coppy data from docker to ./postgres
+      - ./postgres-data:/var/lib/postgresql/data
+          # SQL for DATABASE RUN HERE !!!
+      # - ./service/db/db/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+
+
+
+
+
+  # https://levelup.gitconnected.com/creating-and-filling-a-postgres-db-with-docker-compose-e1607f6f882f
