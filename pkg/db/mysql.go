@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 
 	"web-service/pkg/log"
 
@@ -35,6 +36,8 @@ func mysqlConnect() *sql.DB {
 	err = conn.Ping()
 	if err != nil {
 		log.Println(log.LogLevelFatal, "mysql-connect", err.Error())
+	} else {
+		fmt.Println(log.LogLevelInfo, "mysql-connect", "Connect: "+mysqlCfg.Host+":"+mysqlCfg.Port)
 	}
 
 	// Return Connection
