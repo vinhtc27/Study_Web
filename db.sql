@@ -1,15 +1,3 @@
-CREATE TABLE public.accounts (
-	id bigserial NOT NULL,
-	userid int8 NOT NULL,
-	email varchar(255) NOT NULL,
-	"password" varchar(255) NOT NULL,
-	accounttype varchar(255) NOT NULL,
-	accountstatus varchar(255) NOT NULL,
-	createddate timestamp NOT NULL,
-	updateddate timestamp NOT NULL,
-	CONSTRAINT accounts_pk PRIMARY KEY (id)
-);
-
 CREATE TABLE public.users (
 	id bigserial NOT NULL,
 	"name" varchar(255) NULL,
@@ -23,6 +11,18 @@ CREATE TABLE public.users (
 	"national" varchar(255) NULL,
 	createddate timestamp NOT NULL,
 	updateddate timestamp NOT NULL,
-	CONSTRAINT users_pk PRIMARY KEY (id),
-	CONSTRAINT users_fk FOREIGN KEY (id) REFERENCES public.accounts(id)
+	CONSTRAINT users_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE public.accounts (
+	id bigserial NOT NULL,
+	userid int8 NOT NULL,
+	email varchar(255) NOT NULL,
+	"password" varchar(255) NOT NULL,
+	accounttype varchar(255) NOT NULL,
+	accountstatus varchar(255) NOT NULL,
+	createddate timestamp NOT NULL,
+	updateddate timestamp NOT NULL,
+	CONSTRAINT accounts_pk PRIMARY KEY (id),
+	CONSTRAINT accounts_fk FOREIGN KEY (id) REFERENCES public.users(id)
 );
