@@ -15,3 +15,8 @@ const (
 	CONFIRM_EMAIL_PATH   = "/confirm-email"
 	FORGOT_PASSWORD_PATH = "/forgot-password"
 )
+
+const (
+	CHANNEL_ROLE_HOST   = 1
+	CHANNEL_ROLE_MEMBER = 0
+)
