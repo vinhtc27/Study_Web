@@ -11,6 +11,8 @@ var MessageSubRoute = chi.NewRouter()
 func init() {
 	MessageSubRoute.Group(func(_ chi.Router) {
 		//MessageSubRoute.With(auth.JWT).Patch("/message", controller.UpdateCurrentProfile)
-		MessageSubRoute.Post("/createMessage", controller.InsertMessage)
+		MessageSubRoute.Post("/createMessage", controller.CreateMessage)
+		MessageSubRoute.Patch("/modifyMessage", controller.ModifyMessage)
+		MessageSubRoute.Delete("/deleteMessage", controller.DeleteMessage)
 	})
 }
