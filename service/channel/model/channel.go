@@ -44,6 +44,9 @@ func (channel *Channel) CreateChannel() error {
 		return err
 	}
 
+	channel.CreatedDate = utils.Timestamp()
+	channel.UpdatedDate = channel.CreatedDate
+
 	err = db.PSQL.QueryRow(query, channel.Name, channel.Avatar, membersJSON, utils.Timestamp(), utils.Timestamp()).Scan(&channel.Id)
 	if err != nil {
 		return err
