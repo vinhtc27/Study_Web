@@ -72,12 +72,19 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	nameFromEmail := strings.SplitN(string(registerForm.Email), "@", 2)[0]
 
 	var user = &model.User{
-		Name:  nameFromEmail,
-		Email: registerForm.Email,
+		Name:     nameFromEmail,
+		Email:    registerForm.Email,
+		Avatar:   constant.DEFAULT_USER_AVATAR,
+		Channels: []model.ChannelId{{Id: -1}},
 	}
 
-	err = user.GetUserByEmail()
-	if user.Id != 0 {
+	exist, err := user.UserIsExist()
+	if err != nil {
+		log.Println(log.LogLevelDebug, "CreateAccount: UserIsExist", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+	if exist {
 		log.Println(log.LogLevelDebug, "CreateAccount: Email already registered", err)
 		router.ResponseBadRequest(w, "B.ACC.400.C2", " Email already registered")
 		return
