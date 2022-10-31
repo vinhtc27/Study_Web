@@ -51,58 +51,71 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		router.ResponseInternalError(w, err.Error())
-		return
-	}
-	defer client.Close()
-	fmt.Println("Web Socket connection established")
-
-	clients[client] = channelId
 	channel := &model.Channel{
 		Id: channelId,
 	}
-
 	err = channel.GetChannelById()
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return
 	}
 
-	for _, oldMessage := range channel.Messages {
-		err = client.WriteJSON(oldMessage)
-		if err != nil {
-			client.Close()
-			delete(clients, client)
-			break
+	isMember := false
+	for _, member := range channel.Members {
+		if member.UserId == payload.UserId {
+			isMember = true
 		}
 	}
 
-	for {
-		message := &model.Message{
-			SenderId:  payload.UserId,
-			ChannelId: channelId,
-			Timestamp: utils.Timestamp(),
-		}
-
-		err := client.ReadJSON(&message)
+	if !isMember {
+		router.ResponseBadRequest(w, "B.CHA.WS.C1", "You must be a channel's member")
+		return
+	} else {
+		client, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
-			delete(clients, client)
-			break
+			return
+		}
+		defer client.Close()
+		fmt.Println("Web Socket connection established")
+
+		clients[client] = channelId
+
+		for _, oldMessage := range channel.Messages {
+			err = client.WriteJSON(oldMessage)
+			if err != nil {
+				client.Close()
+				delete(clients, client)
+				break
+			}
 		}
 
-		go func(message *model.Message) {
-			broadcast <- message
-			err = channel.UpdateNewMessage(message)
+		for {
+			message := &model.Message{
+				SenderId:  payload.UserId,
+				ChannelId: channelId,
+				Timestamp: utils.Timestamp(),
+			}
+
+			err := client.ReadJSON(&message)
 			if err != nil {
 				router.ResponseInternalError(w, err.Error())
 				delete(clients, client)
-				return
+				break
 			}
-		}(message)
+
+			go func(message *model.Message) {
+				broadcast <- message
+				err = channel.UpdateNewMessage(message)
+				if err != nil {
+					router.ResponseInternalError(w, err.Error())
+					delete(clients, client)
+					return
+				}
+			}(message)
+		}
 	}
+
 }
 
 func BroadcastMessages() {
