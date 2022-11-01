@@ -46,13 +46,6 @@ func HealthCheck(w http.ResponseWriter) {
 	// Check Database Connections
 	if len(server.Config.GetString("DB_DRIVER")) != 0 {
 		switch strings.ToLower(server.Config.GetString("DB_DRIVER")) {
-		case "mysql":
-			err := db.MySQL.Ping()
-			if err != nil {
-				log.Println(log.LogLevelError, "health-check", err.Error())
-				ResponseInternalError(w, err.Error())
-				return
-			}
 		case "postgres":
 			err := db.PSQL.Ping()
 			if err != nil {
