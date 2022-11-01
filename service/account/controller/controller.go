@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"strconv"
 	"strings"
 	"time"
@@ -59,6 +60,13 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	//Form for register
 	var registerForm = &AuthenticationForm{}
 	_ = json.NewDecoder(r.Body).Decode(registerForm)
+
+	_, err := mail.ParseAddress(registerForm.Email)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "CreateAccount: ParseAddress", err)
+		router.ResponseBadRequest(w, "B.ACC.400.C0", "invalid email address")
+		return
+	}
 
 	// Generate hashed password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerForm.Password), _defaultPasswordGenerateCost)
