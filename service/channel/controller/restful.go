@@ -59,7 +59,7 @@ func CreateChannel(w http.ResponseWriter, r *http.Request) {
 		router.ResponseInternalError(w, err.Error())
 		return
 	}
-	router.ResponseSuccess(w, "B.CHA.201.C1", "Create channel successfully !!!")
+	router.ResponseSuccessWithData(w, "B.CHA.201.C1", "Create channel successfully !!!", channel)
 }
 
 func DeleteChannelById(w http.ResponseWriter, r *http.Request) {
