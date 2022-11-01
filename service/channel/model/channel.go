@@ -43,8 +43,10 @@ func (channel *Channel) CreateChannel() error {
 	if err != nil {
 		return err
 	}
+	channel.CreatedDate = utils.Timestamp()
+	channel.UpdatedDate = utils.Timestamp()
 
-	err = db.PSQL.QueryRow(query, channel.Name, channel.Avatar, membersJSON, utils.Timestamp(), utils.Timestamp()).Scan(&channel.Id)
+	err = db.PSQL.QueryRow(query, channel.Name, channel.Avatar, membersJSON, channel.CreatedDate, channel.UpdatedDate).Scan(&channel.Id)
 	if err != nil {
 		return err
 	}
