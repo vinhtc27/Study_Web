@@ -13,6 +13,7 @@ CREATE TABLE users (
 	createddate timestamp NOT NULL,
 	updateddate timestamp NOT NULL
 );
+create index idx_users_id on users(id);
 
 CREATE TABLE accounts (
 	id bigserial,
@@ -24,6 +25,7 @@ CREATE TABLE accounts (
 	createddate timestamp NOT NULL,
 	updateddate timestamp NOT NULL
 );
+create index idx_accounts_id on accounts(id);
 
 CREATE TABLE channels (
     id bigserial,
@@ -35,3 +37,13 @@ CREATE TABLE channels (
     createddate timestamp NOT NULL,
     updateddate timestamp NOT NULL
 );
+create index idx_channels_id on channels(id);
+              
+
+
+
+
+
+
+
+
