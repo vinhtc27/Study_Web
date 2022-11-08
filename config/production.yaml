@@ -1,7 +1,7 @@
 ## Server Configuration
 SERVER_NAME: "web-service"
 SERVER_IP: "127.0.0.1"
-SERVER_PORT: "8080"
+SERVER_PORT: "80"
 SERVER_STORE_PATH: "./config/stores"
 SERVER_UPLOAD_PATH: "./config/uploads"
 SERVER_UPLOAD_LIMIT: 8
@@ -16,12 +16,12 @@ CRYPT_PUBLIC_KEY_FILE: "./config/keys/public.key"
 
 ## Database Configuration
 
-# DB_DRIVER: "postgres"
-# DB_HOST: "127.0.0.1"
-# DB_PORT: "5432"
-# DB_USER: "postgres"
-# DB_PASSWORD: "password"
-# DB_NAME: "users"
+DB_DRIVER: "postgres"
+DB_HOST: "127.0.0.1"
+DB_PORT: "5432"
+DB_USER: "postgres"
+DB_PASSWORD: "password"
+DB_NAME: "web_service"
 
 ## Local Cache Configuration
 LOCAL_CACHE_LIB: "ristretto"
