@@ -106,7 +106,7 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 
 			go func(message *model.Message) {
 				broadcast <- message
-				err = channel.UpdateNewMessage(message)
+				err = channel.AddMessage(message)
 				if err != nil {
 					router.ResponseInternalError(w, err.Error())
 					delete(clients, client)

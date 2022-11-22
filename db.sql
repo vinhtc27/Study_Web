@@ -9,7 +9,7 @@ CREATE TABLE users (
 	phone varchar,
 	idcard varchar,
 	"national" varchar,
-	channels jsonb DEFAULT '[]'::jsonb,
+	channels jsonb DEFAULT '[{"id": -1}]'::jsonb,
 	createddate timestamp NOT NULL,
 	updateddate timestamp NOT NULL
 );
@@ -32,18 +32,9 @@ CREATE TABLE channels (
     name varchar,
     avatar varchar,
 	members jsonb DEFAULT '[]'::jsonb,
-	messages jsonb DEFAULT '[]'::jsonb,
-    tasks jsonb DEFAULT '[]'::jsonb,
+	messages jsonb DEFAULT '[{"timestamp": -1}]'::jsonb,
+    taskcolumns jsonb DEFAULT '[{"title": "-1"}]'::jsonb,
     createddate timestamp NOT NULL,
     updateddate timestamp NOT NULL
 );
 create index idx_channels_id on channels(id);
-              
-
-
-
-
-
-
-
-
