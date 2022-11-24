@@ -83,7 +83,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		Name:     nameFromEmail,
 		Email:    registerForm.Email,
 		Avatar:   constant.DEFAULT_USER_AVATAR,
-		Channels: []model.ChannelId{{Id: -1}},
+		Channels: []model.ChannelId{},
 	}
 
 	exist, err := user.UserIsExist()
