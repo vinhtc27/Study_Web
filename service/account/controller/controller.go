@@ -420,11 +420,8 @@ func ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		if account.AccountStatus == constant.ACCOUNT_STATUS_INACTIVATED {
 			log.Println(log.LogLevelInfo, "ForgotPassword: Your account is inactivated", "")
 			router.ResponseBadRequest(w, "B.ACC.400.C4", "Your account is inactivated")
-		} else {
-			log.Println(log.LogLevelInfo, "ForgotPassword: Your account has been deactivated", "")
-			router.ResponseBadRequest(w, "B.ACC.400.C5", "Your account has been deactivated")
+			return
 		}
-		return
 	}
 
 	// Generate new hashed password

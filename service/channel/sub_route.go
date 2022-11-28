@@ -14,6 +14,7 @@ var ChannelSubRoute = chi.NewRouter()
 func init() {
 	ChannelSubRoute.Group(func(_ chi.Router) {
 		ChannelSubRoute.With(auth.JWT).Post("/create-channel", controller.CreateChannel)
+		ChannelSubRoute.With(auth.JWT).Get("/channelId={channelId}", controller.GetChannelById)
 		ChannelSubRoute.With(auth.JWT).Delete("/channelId={channelId}", controller.DeleteChannelById)
 		ChannelSubRoute.With(auth.JWT).Patch("/channelId={channelId}", controller.UpdateChannelById)
 		ChannelSubRoute.With(auth.JWT).Patch("/add/channelId={channelId}", controller.AddChannelMember)

@@ -127,6 +127,49 @@ func DeleteChannelById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetChannelById(w http.ResponseWriter, r *http.Request) {
+	//Get Parameters JWT claims header
+	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		log.Println(log.LogLevelDebug, "GetChannelById: GetJWTClaims", err)
+		return
+	}
+
+	// Get payload data from claims
+	var payload = &auth.Payload{}
+	err = payload.GetDataFromClaims(claims)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "GetChannelById: GetDataFromClaims", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	channelId, err := strconv.Atoi(chi.URLParam(r, "channelId"))
+	if err != nil {
+		log.Println(log.LogLevelDebug, "GetChannelById: strconv.Atoi(chi.URLParam(r, \"channelId\"))", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	var channel = &model.Channel{
+		Id: channelId,
+	}
+	err = channel.GetChannelById()
+	if err != nil {
+		log.Println(log.LogLevelDebug, "GetChannelById: GetChannelById", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+	for _, member := range channel.Members {
+		if payload.UserId == member.UserId {
+			router.ResponseSuccessWithData(w, "B.CHA.200.C2", "Get channel by id successfully", channel)
+			return
+		}
+	}
+	router.ResponseBadRequest(w, "B.CHA.200.C9", "You are not channel's member")
+}
+
 func UpdateChannelById(w http.ResponseWriter, r *http.Request) {
 	//Get Parameters JWT claims header
 	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
