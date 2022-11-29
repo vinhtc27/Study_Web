@@ -123,6 +123,26 @@ func (user *User) GetUserById() error {
 	return nil
 }
 
+// Select user by id from database
+func (user *User) GetUserByEmail() error {
+	nullUser := &NullUser{}
+	channels := []byte{}
+	query := `SELECT * FROM users WHERE email = $1;`
+
+	err := db.PSQL.QueryRow(query, user.Email).Scan(&nullUser.Id, &nullUser.Name, &nullUser.Dob, &nullUser.Sex, &nullUser.Avatar, &nullUser.Email, &nullUser.Address, &nullUser.Phone, &nullUser.IdCard, &nullUser.National, &channels, &nullUser.CreatedDate, &nullUser.UpdatedDate)
+	if err != nil {
+		return err
+	}
+
+	user.ConvertToUser(nullUser)
+	err = json.Unmarshal(channels, &user.Channels)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Update user from database
 func (user *User) UpdateUser() error {
 	query := `UPDATE users SET name= $1, dob= $2, sex= $3, avatar= $4, address= $5, phone= $6, idCard= $7, national= $8, updatedDate = $9 WHERE id= $10`

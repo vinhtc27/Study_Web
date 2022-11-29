@@ -10,6 +10,8 @@ import (
 	"web-service/pkg/router"
 	"web-service/service/channel/model"
 
+	userModel "web-service/service/account/model"
+
 	"github.com/go-chi/chi"
 )
 
@@ -247,9 +249,14 @@ func AddChannelMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUserId, err := strconv.Atoi(r.URL.Query().Get("userId"))
+	newMemberEmail := r.URL.Query().Get("email")
+	user := &userModel.User{
+		Email: newMemberEmail,
+	}
+
+	err = user.GetUserByEmail()
 	if err != nil {
-		log.Println(log.LogLevelDebug, "AddChannelMember: strconv.Atoi(r.URL.Query().Get(\"userId\"))", err)
+		log.Println(log.LogLevelDebug, "AddChannelMember: GetUserByEmail", err)
 		router.ResponseInternalError(w, err.Error())
 		return
 	}
@@ -267,8 +274,8 @@ func AddChannelMember(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if hostId == payload.UserId {
-		if hostId != newUserId {
-			err = channel.AddNewMember(&model.Member{UserId: newUserId, Role: constant.CHANNEL_ROLE_MEMBER})
+		if hostId != user.Id {
+			err = channel.AddNewMember(&model.Member{UserId: user.Id, Role: constant.CHANNEL_ROLE_MEMBER})
 			if err != nil {
 				log.Println(log.LogLevelDebug, "AddChannelMember: AddNewMember", err)
 				router.ResponseInternalError(w, err.Error())

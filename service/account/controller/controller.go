@@ -226,7 +226,6 @@ func UpdateCurrentProfile(w http.ResponseWriter, r *http.Request) {
 	router.ResponseUpdated(w, "B.ACC.200.C12")
 }
 
-// GetProfileById Function to Get User's Profile by User ID
 func GetCurrentProfile(w http.ResponseWriter, r *http.Request) {
 	//Get Parameters JWT claims header
 	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
@@ -257,6 +256,29 @@ func GetCurrentProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg := fmt.Sprintf("Get profile user id %d sussess!", payload.UserId)
+
+	router.ResponseSuccessWithData(w, "", msg, user)
+}
+
+func GetProfileByUserId(w http.ResponseWriter, r *http.Request) {
+	userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+	if err != nil {
+		log.Println(log.LogLevelDebug, "GetProfileByUserId: strconv.Atoi(chi.URLParam(r, \"userId\"))", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+	var user = &model.User{
+		Id: userId,
+	}
+
+	err = user.GetUserById()
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		log.Println(log.LogLevelDebug, "GetProfileByUserId: GetUserById", err)
+		return
+	}
+
+	msg := fmt.Sprintf("Get profile user id %d sussess!", userId)
 
 	router.ResponseSuccessWithData(w, "", msg, user)
 }
