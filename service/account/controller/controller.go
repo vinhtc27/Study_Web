@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/mail"
 	"strconv"
@@ -79,10 +80,11 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	// Split name from gmail
 	nameFromEmail := strings.SplitN(string(registerForm.Email), "@", 2)[0]
 
+	userAvatarIndex := rand.Intn(len(constant.DEFAULT_USER_AVATAR_LIST))
 	var user = &model.User{
 		Name:     nameFromEmail,
 		Email:    registerForm.Email,
-		Avatar:   constant.DEFAULT_USER_AVATAR,
+		Avatar:   constant.DEFAULT_USER_AVATAR_LIST[userAvatarIndex],
 		Channels: []model.ChannelId{},
 	}
 

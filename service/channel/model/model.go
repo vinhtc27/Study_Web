@@ -31,7 +31,7 @@ type Channel struct {
 
 type TaskColumn struct {
 	Title            string `json:"title"`
-	TaskColumnDetail []byte `json:"taskColumnDetail"`
+	TaskColumnDetail any    `json:"taskColumnDetail"`
 }
 
 // Insert new message to db
@@ -111,8 +111,8 @@ func (channel *Channel) GetChannelHostId() (int, error) {
 }
 
 func (channel *Channel) UpdateChannelById() error {
-	query := `Update channels SET name = $1, avatar = $2 WHERE id = $3;`
-	_, err := db.PSQL.Exec(query, channel.Name, channel.Avatar, channel.Id)
+	query := `Update channels SET name = $1 WHERE id = $2;`
+	_, err := db.PSQL.Exec(query, channel.Name, channel.Id)
 	return err
 }
 

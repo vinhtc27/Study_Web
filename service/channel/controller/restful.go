@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"web-service/constant"
@@ -45,9 +46,11 @@ func CreateChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	channelImageIndex := rand.Intn(len(constant.DEFAULT_CHANNEL_AVATAR_LIST))
+
 	var channel = &model.Channel{
 		Name:   newChannel.Name,
-		Avatar: constant.DEFAULT_CHANNE_AVATAR,
+		Avatar: constant.DEFAULT_CHANNEL_AVATAR_LIST[channelImageIndex],
 		Members: []model.Member{
 			{
 				UserId: payload.UserId,
@@ -210,6 +213,14 @@ func UpdateChannelById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if hostId == payload.UserId {
+		newChannel := &CreateNewChannel{}
+		err = json.NewDecoder(r.Body).Decode(newChannel)
+		if err != nil {
+			log.Println(log.LogLevelDebug, "Name null", err)
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+		channel.Name = newChannel.Name
 		err = channel.UpdateChannelById()
 		if err != nil {
 			log.Println(log.LogLevelDebug, "UpdateChannelById: UpdateChannelById", err)
@@ -351,6 +362,138 @@ func DeleteChannelMember(w http.ResponseWriter, r *http.Request) {
 			router.ResponseSuccess(w, "B.CHA.200.C8", "Host cannot be deleted")
 			return
 		}
+	} else {
+		router.ResponseBadRequest(w, "B.CHA.400.C3", "You are not channel's host")
+		return
+	}
+}
+
+type CreateNewTaskColumn struct {
+	Title            string `json:"title"`
+	TaskColumnDetail any    `json:"taskColumnDetail"`
+}
+
+type RemoveTaskColumn struct {
+	Title string `json:"title"`
+}
+
+func AddTaskColumn(w http.ResponseWriter, r *http.Request) {
+	//Get Parameters JWT claims header
+	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		log.Println(log.LogLevelDebug, "AddTaskColumn: GetJWTClaims", err)
+		return
+	}
+
+	// Get payload data from claims
+	var payload = &auth.Payload{}
+	err = payload.GetDataFromClaims(claims)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "AddTaskColumn: GetDataFromClaims", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	channelId, err := strconv.Atoi(chi.URLParam(r, "channelId"))
+	if err != nil {
+		log.Println(log.LogLevelDebug, "AddTaskColumn: strconv.Atoi(chi.URLParam(r, \"channelId\"))", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	newTaskColumn := &CreateNewTaskColumn{}
+	err = json.NewDecoder(r.Body).Decode(newTaskColumn)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "AddTaskColumn: Decode(newTaskColumn)", err.Error())
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	var channel = &model.Channel{
+		Id: channelId,
+	}
+
+	var taskColumn = &model.TaskColumn{
+		Title:            newTaskColumn.Title,
+		TaskColumnDetail: newTaskColumn.TaskColumnDetail,
+	}
+
+	hostId, err := channel.GetChannelHostId()
+	if err != nil {
+		log.Println(log.LogLevelDebug, "AddChannelMember: GetChannelHostId", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	if hostId == payload.UserId {
+		err = channel.AddTaskColumn(taskColumn)
+		if err != nil {
+			log.Println(log.LogLevelDebug, "AddTaskColumn: AddTaskColumn", err)
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+		router.ResponseSuccess(w, "B.CHA.200.C5", "Add task column to channel successfully")
+		return
+	} else {
+		router.ResponseBadRequest(w, "B.CHA.400.C3", "You are not channel's host")
+		return
+	}
+}
+
+func DeleteTaskColumn(w http.ResponseWriter, r *http.Request) {
+	//Get Parameters JWT claims header
+	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		log.Println(log.LogLevelDebug, "DeleteTaskColumn: GetJWTClaims", err)
+		return
+	}
+
+	// Get payload data from claims
+	var payload = &auth.Payload{}
+	err = payload.GetDataFromClaims(claims)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "DeleteTaskColumn: GetDataFromClaims", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	channelId, err := strconv.Atoi(chi.URLParam(r, "channelId"))
+	if err != nil {
+		log.Println(log.LogLevelDebug, "DeleteTaskColumn: strconv.Atoi(chi.URLParam(r, \"channelId\"))", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	deleteTaskColumn := &RemoveTaskColumn{}
+	err = json.NewDecoder(r.Body).Decode(deleteTaskColumn)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "Task Column null", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	var channel = &model.Channel{
+		Id: channelId,
+	}
+
+	hostId, err := channel.GetChannelHostId()
+	if err != nil {
+		log.Println(log.LogLevelDebug, "DeleteTaskColumn: GetChannelHostId", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	if hostId == payload.UserId {
+		err = channel.DeleteTaskColumnByTitle(deleteTaskColumn.Title)
+		if err != nil {
+			log.Println(log.LogLevelDebug, "DeleteTaskColumn: DeleteTaskColumn", err)
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+		router.ResponseSuccess(w, "B.CHA.200.C7", "Delete task column from channel successfully")
+		return
 	} else {
 		router.ResponseBadRequest(w, "B.CHA.400.C3", "You are not channel's host")
 		return
