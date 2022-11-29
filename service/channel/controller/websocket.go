@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strconv"
 	"web-service/pkg/auth"
+	"web-service/pkg/crypt"
 	"web-service/pkg/router"
 	"web-service/pkg/utils"
 	"web-service/service/channel/model"
 
-	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
 )
 
@@ -31,9 +31,20 @@ func init() {
 func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	authClaims, err := auth.JwtClaims(r.URL.Query().Get("token"))
 	if err != nil {
-		router.ResponseInternalError(w, err.Error())
+		router.ResponseBadRequest(w, "", err.Error())
+		return
+	}
+
+	claimsEncrypted, err := crypt.EncryptWithRSA(authClaims["data"].(string))
+	if err != nil {
+		router.ResponseBadRequest(w, "", err.Error())
+		return
+	}
+	claims, err := auth.GetJWTClaims(claimsEncrypted)
+	if err != nil {
+		router.ResponseBadRequest(w, "", err.Error())
 		return
 	}
 
@@ -45,7 +56,7 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelId, err := strconv.Atoi(chi.URLParam(r, "channelId"))
+	channelId, err := strconv.Atoi(r.URL.Query().Get("channelId"))
 	if err != nil {
 		router.ResponseInternalError(w, err.Error())
 		return

@@ -19,6 +19,6 @@ func init() {
 		ChannelSubRoute.With(auth.JWT).Patch("/channelId={channelId}", controller.UpdateChannelById)
 		ChannelSubRoute.With(auth.JWT).Patch("/add/channelId={channelId}", controller.AddChannelMember)
 		ChannelSubRoute.With(auth.JWT).Post("/delete/channelId={channelId}", controller.DeleteChannelMember)
-		ChannelSubRoute.With(auth.JWT).Handle("/chat/channelId={channelId}", http.HandlerFunc(controller.HandlerChannelWebSocket))
+		ChannelSubRoute.Handle("/chat", http.HandlerFunc(controller.HandlerChannelWebSocket))
 	})
 }

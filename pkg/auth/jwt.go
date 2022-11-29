@@ -54,7 +54,7 @@ func JWT(next http.Handler) http.Handler {
 		}
 
 		// Get Authorization Claims From JWT Token
-		authClaims, err := jwtClaims(authPayload)
+		authClaims, err := JwtClaims(authPayload)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
@@ -114,7 +114,7 @@ func GetJWTClaims(data string) (string, error) {
 }
 
 // JWTClaims Function to Get JWT Claims Information
-func jwtClaims(data string) (jwt.MapClaims, error) {
+func JwtClaims(data string) (jwt.MapClaims, error) {
 	// Convert Signing Key in Byte Format
 	signingKey, err := jwt.ParseRSAPublicKeyFromPEM(crypt.KeyRSACfg.BytePublic)
 	if err != nil {
