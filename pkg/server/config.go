@@ -114,8 +114,8 @@ func configLoadValues() {
 	// Crypt RSA Public Key File Value
 	Config.SetDefault("CRYPT_PUBLIC_KEY_FILE", "./config/keys/public.key")
 
-	// JWT Expiration Time Value
-	Config.SetDefault("JWT_EXPIRATION_TIME_HOURS", 24)
+	// JWT Expiration Time Value -> 1 week
+	Config.SetDefault("JWT_EXPIRATION_TIME_DAYS", 7)
 
 	// Log file config
 	Config.SetDefault("LOG_FILE_PATH", "/root/backend/log/log.txt")
