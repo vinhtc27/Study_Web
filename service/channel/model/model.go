@@ -199,3 +199,20 @@ func (channel *Channel) DeleteTaskColumnByTitle(taskColumnTitle string) error {
 	_, err := db.PSQL.Exec(query, taskColumnTitle, channel.Id)
 	return err
 }
+
+func (channel *Channel) UpdateTaskColumn(taskColumn *TaskColumn) error {
+
+	query := `WITH task AS (
+    SELECT ('{'||position -1|| ',taskColumnDetail}')::TEXT[] AS path
+    FROM channels c ,
+         jsonb_array_elements(taskcolumns) WITH ORDINALITY arr(taskColumn, position) 
+    where id = $2 and arr.position=(select arr.position  FROM channels, jsonb_array_elements(taskcolumns) with ordinality arr(title, position) 
+	WHERE id= $2 and arr.title->>'title' = $3)
+	)
+	update channels set taskcolumns = jsonb_set(taskcolumns, task.path, $1) from task 
+	where id = $2
+	`
+
+	_, err := db.PSQL.Exec(query, taskColumn.TaskColumnDetail, channel.Id, taskColumn.Title)
+	return err
+}
