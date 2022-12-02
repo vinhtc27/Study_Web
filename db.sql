@@ -32,7 +32,7 @@ CREATE TABLE channels (
     name varchar,
     avatar varchar,
 	members jsonb DEFAULT '[]'::jsonb,
-	messages jsonb DEFAULT '[{"timestamp": -1}]'::jsonb,
+	messages jsonb DEFAULT '[{"timestamp": "-1"}]'::jsonb,
     taskcolumns jsonb DEFAULT '[{"title": "-1"}]'::jsonb,
     createddate timestamp NOT NULL,
     updateddate timestamp NOT NULL
