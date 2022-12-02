@@ -87,13 +87,9 @@ func (user *User) ConvertToUser(nullUser *NullUser) {
 
 // Insert new user into the database
 func (user *User) InsertUser() error {
-	channelsJSON, err := json.Marshal(user.Channels)
-	if err != nil {
-		return err
-	}
-	query := `INSERT INTO users (name, email, avatar, channels, createddate, updateddate) VALUES ( $1, $2, $3, $4, $5, $6) RETURNING id;`
+	query := `INSERT INTO users (name, email, avatar, createddate, updateddate) VALUES ( $1, $2, $3, $4, $5) RETURNING id;`
 
-	return db.PSQL.QueryRow(query, user.Name, user.Email, user.Avatar, channelsJSON, utils.Timestamp(), utils.Timestamp()).Scan(&user.Id)
+	return db.PSQL.QueryRow(query, user.Name, user.Email, user.Avatar, utils.Timestamp(), utils.Timestamp()).Scan(&user.Id)
 }
 
 func (user *User) UserIsExist() (bool, error) {

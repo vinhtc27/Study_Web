@@ -82,10 +82,9 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	userAvatarIndex := rand.Intn(len(constant.DEFAULT_USER_AVATAR_LIST))
 	var user = &model.User{
-		Name:     nameFromEmail,
-		Email:    registerForm.Email,
-		Avatar:   constant.DEFAULT_USER_AVATAR_LIST[userAvatarIndex],
-		Channels: []model.ChannelId{},
+		Name:   nameFromEmail,
+		Email:  registerForm.Email,
+		Avatar: constant.DEFAULT_USER_AVATAR_LIST[userAvatarIndex],
 	}
 
 	exist, err := user.UserIsExist()
