@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 
 	// "web-service/pkg/cache"
 
@@ -23,11 +24,16 @@ var Router *chi.Mux
 func init() {
 	// Initialize Router
 	Router = chi.NewRouter()
-
-	// Set Router Middleware
-	Router.Use(routerCORS)
-	Router.Use(routerRealIP)
-	Router.Use(routerEntitySize)
+	Router.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	// Set Router Handler
 	Router.NotFound(handlerNotFound)
