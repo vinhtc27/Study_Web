@@ -14,7 +14,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 )
 
-require github.com/go-chi/cors v1.2.1 // indirect
+require github.com/go-chi/cors v1.2.1
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
@@ -27,7 +27,6 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rs/cors v1.8.2
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
