@@ -499,3 +499,68 @@ func DeleteTaskColumn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func UpdateTaskColumn(w http.ResponseWriter, r *http.Request) {
+	//Get Parameters JWT claims header
+	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		log.Println(log.LogLevelDebug, "UpdateTaskColumn: GetJWTClaims", err)
+		return
+	}
+
+	// Get payload data from claims
+	var payload = &auth.Payload{}
+	err = payload.GetDataFromClaims(claims)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "UpdateTaskColumn: GetDataFromClaims", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	channelId, err := strconv.Atoi(chi.URLParam(r, "channelId"))
+	if err != nil {
+		log.Println(log.LogLevelDebug, "UpdateTaskColumn: strconv.Atoi(chi.URLParam(r, \"channelId\"))", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	newTaskColumn := &CreateNewTaskColumn{}
+	err = json.NewDecoder(r.Body).Decode(newTaskColumn)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "Name null", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	var channel = &model.Channel{
+		Id: channelId,
+	}
+
+	newTaskColumnDetail, err := json.Marshal(newTaskColumn.TaskColumnDetail)
+	var taskColumn = &model.TaskColumn{
+		Title:            newTaskColumn.Title,
+		TaskColumnDetail: newTaskColumnDetail,
+	}
+
+	hostId, err := channel.GetChannelHostId()
+	if err != nil {
+		log.Println(log.LogLevelDebug, "UpdateTaskColumn: GetChannelHostId", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+
+	if hostId == payload.UserId {
+		err = channel.UpdateTaskColumn(taskColumn)
+		if err != nil {
+			log.Println(log.LogLevelDebug, "UpdateTaskColumn: UpdateTaskColumn", err)
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
+		router.ResponseSuccess(w, "B.CHA.200.C5", "Update task column to channel successfully")
+		return
+	} else {
+		router.ResponseBadRequest(w, "B.CHA.400.C3", "You are not channel's host")
+		return
+	}
+}

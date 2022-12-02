@@ -21,6 +21,7 @@ func init() {
 		ChannelSubRoute.With(auth.JWT).Delete("/delete/channelId={channelId}", controller.DeleteChannelMember)
 		ChannelSubRoute.Handle("/chat", http.HandlerFunc(controller.HandlerChannelWebSocket))
 		ChannelSubRoute.With(auth.JWT).Patch("/addTaskColumn/channelId={channelId}", controller.AddTaskColumn)
+		ChannelSubRoute.With(auth.JWT).Post("/updateTaskColumn/channelId={channelId}", controller.UpdateTaskColumn)
 		ChannelSubRoute.With(auth.JWT).Delete("/deleteTaskColumn/channelId={channelId}", controller.DeleteTaskColumn)
 	})
 }
