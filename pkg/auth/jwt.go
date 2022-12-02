@@ -11,7 +11,6 @@ import (
 	"web-service/pkg/crypt"
 	"web-service/pkg/log"
 	"web-service/pkg/router"
-	"web-service/pkg/server"
 )
 
 // ResGetJWT Struct
@@ -87,7 +86,7 @@ func GetJWTToken(payload interface{}) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwtClaimsData{
 		payload.(string),
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Duration(server.Config.GetInt64("JWT_EXPIRATION_TIME_DAYS")) * 24 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(7 * 24 * time.Hour)).Unix(), //7day jwt expiration time
 		},
 	})
 
