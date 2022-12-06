@@ -9,6 +9,7 @@ SERVER_LOG_LEVEL: "debug"
 
 ## Router Configuration
 ROUTER_BASE_PATH: ""
+FE_PATH: "./build"
 
 ## Cryptography Configuration
 CRYPT_PRIVATE_KEY_FILE: "./config/keys/private.key"
