@@ -31,3 +31,6 @@ go.work
 
 # Intellij IDE
 *.idea
+
+*.build
+main

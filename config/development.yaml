@@ -9,7 +9,7 @@ SERVER_LOG_LEVEL: "debug"
 
 ## Router Configuration
 ROUTER_BASE_PATH: ""
-FE_PATH: "./build"
+FE_PATH: "/Users/vinhtc27/Documents/html:css:js/study/chatella-app/build"
 
 ## Cryptography Configuration
 CRYPT_PRIVATE_KEY_FILE: "./config/keys/private.key"
