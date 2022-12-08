@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 	"web-service/pkg/auth"
@@ -93,6 +94,9 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Web Socket connection established")
 
 		clients[client] = channelId
+		sort.Slice(channel.Messages, func(i, j int) bool {
+			return channel.Messages[i].Timestamp < channel.Messages[j].Timestamp
+		})
 
 		for _, oldMessage := range channel.Messages {
 			err = client.WriteJSON(oldMessage)
@@ -105,6 +109,7 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		for {
 			message := &model.Message{
+				Type:      model.ChatType,
 				SenderId:  payload.UserId,
 				ChannelId: channelId,
 				Timestamp: utils.Timestamp(),
@@ -149,9 +154,10 @@ func BroadcastMessages() {
 
 func Ping() {
 	for {
-		for client := range clients {
-			event := &model.Event{
-				Type: "ping",
+		for client, channelId := range clients {
+			event := &model.Message{
+				Type:      model.PingType,
+				ChannelId: channelId,
 			}
 			err := client.WriteJSON(event)
 			if err != nil {

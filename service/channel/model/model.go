@@ -7,12 +7,15 @@ import (
 	"web-service/service/account/model"
 )
 
-type Event struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
-}
+const (
+	ChatType   = "chat"
+	PingType   = "ping"
+	AddType    = "add"
+	DeleteType = "delete"
+)
 
 type Message struct {
+	Type      string `json:"type"`
 	ChannelId int    `json:"channelId"`
 	SenderId  int    `json:"senderId"`
 	Content   string `json:"content"`

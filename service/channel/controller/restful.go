@@ -9,6 +9,7 @@ import (
 	"web-service/pkg/auth"
 	"web-service/pkg/log"
 	"web-service/pkg/router"
+	"web-service/pkg/utils"
 	"web-service/service/channel/model"
 
 	userModel "web-service/service/account/model"
@@ -292,11 +293,14 @@ func AddChannelMember(w http.ResponseWriter, r *http.Request) {
 				router.ResponseInternalError(w, err.Error())
 				return
 			}
-			event := &model.Event{
-				Type: "AddNewMember",
-				Data: "{id: " + strconv.Itoa(user.Id) + "}",
+			message := &model.Message{
+				Type:      model.AddType,
+				ChannelId: channel.Id,
+				SenderId:  hostId,
+				Content:   strconv.Itoa(user.Id),
+				Timestamp: utils.Timestamp(),
 			}
-			Broadcast <- event
+			Broadcast <- message
 			router.ResponseSuccess(w, "B.CHA.200.C5", "Add member to channel successfully")
 			return
 		} else {
@@ -361,11 +365,14 @@ func DeleteChannelMember(w http.ResponseWriter, r *http.Request) {
 				router.ResponseInternalError(w, err.Error())
 				return
 			}
-			event := &model.Event{
-				Type: "DeleteMember",
-				Data: "{id: " + strconv.Itoa(deleteUserId) + "}",
+			message := &model.Message{
+				Type:      model.DeleteType,
+				ChannelId: channel.Id,
+				SenderId:  hostId,
+				Content:   strconv.Itoa(deleteUserId),
+				Timestamp: utils.Timestamp(),
 			}
-			Broadcast <- event
+			Broadcast <- message
 			router.ResponseSuccess(w, "B.CHA.200.C7", "Delete member from channel successfully")
 			return
 		} else {
