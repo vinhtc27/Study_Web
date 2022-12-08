@@ -16,5 +16,11 @@ var StaticSubRoute = chi.NewRouter()
 func init() {
 	StaticSubRoute.Group(func(_ chi.Router) {
 		StaticSubRoute.Handle("/*", fileServer)
+		StaticSubRoute.Get("/workspace", WorkspaceRoute)
+		StaticSubRoute.Get("/workspace/*", WorkspaceRoute)
 	})
+}
+
+func WorkspaceRoute(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, fePath+"/index.html")
 }
