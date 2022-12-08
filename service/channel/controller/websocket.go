@@ -17,7 +17,7 @@ import (
 
 var (
 	clients   = make(map[*websocket.Conn]int)
-	Broadcast = make(chan any)
+	Broadcast = make(chan *model.Message)
 
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -138,7 +138,7 @@ func BroadcastMessages() {
 	for {
 		message := <-Broadcast
 		for client, channelId := range clients {
-			if message.(model.Message).ChannelId == channelId {
+			if message.ChannelId == channelId {
 				err := client.WriteJSON(message)
 				if err != nil {
 					log.Printf("error: %v", err)
@@ -164,6 +164,6 @@ func Ping() {
 				delete(clients, client)
 			}
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 30)
 	}
 }
