@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -91,7 +90,6 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer client.Close()
-		fmt.Println("Web Socket connection established")
 
 		clients[client] = channelId
 		sort.Slice(channel.Messages, func(i, j int) bool {
