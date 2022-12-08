@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 	"web-service/pkg/auth"
 	"web-service/pkg/crypt"
 	"web-service/pkg/router"
@@ -16,7 +17,7 @@ import (
 
 var (
 	clients   = make(map[*websocket.Conn]int)
-	broadcast = make(chan *model.Message)
+	Broadcast = make(chan any)
 
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -116,7 +117,7 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 			}
 
 			go func(message *model.Message) {
-				broadcast <- message
+				Broadcast <- message
 				err = channel.AddMessage(message)
 				if err != nil {
 					router.ResponseInternalError(w, err.Error())
@@ -131,9 +132,9 @@ func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
 
 func BroadcastMessages() {
 	for {
-		message := <-broadcast
+		message := <-Broadcast
 		for client, channelId := range clients {
-			if message.ChannelId == channelId {
+			if message.(model.Message).ChannelId == channelId {
 				err := client.WriteJSON(message)
 				if err != nil {
 					log.Printf("error: %v", err)
@@ -142,5 +143,22 @@ func BroadcastMessages() {
 				}
 			}
 		}
+	}
+}
+
+func Ping() {
+	for {
+		for client := range clients {
+			event := &model.Event{
+				Type: "ping",
+			}
+			err := client.WriteJSON(event)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+		time.Sleep(time.Second * 10)
 	}
 }

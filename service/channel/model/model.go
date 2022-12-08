@@ -7,6 +7,11 @@ import (
 	"web-service/service/account/model"
 )
 
+type Event struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
+}
+
 type Message struct {
 	ChannelId int    `json:"channelId"`
 	SenderId  int    `json:"senderId"`

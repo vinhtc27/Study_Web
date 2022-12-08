@@ -292,6 +292,11 @@ func AddChannelMember(w http.ResponseWriter, r *http.Request) {
 				router.ResponseInternalError(w, err.Error())
 				return
 			}
+			event := &model.Event{
+				Type: "AddNewMember",
+				Data: "{id: " + strconv.Itoa(user.Id) + "}",
+			}
+			Broadcast <- event
 			router.ResponseSuccess(w, "B.CHA.200.C5", "Add member to channel successfully")
 			return
 		} else {
@@ -356,6 +361,11 @@ func DeleteChannelMember(w http.ResponseWriter, r *http.Request) {
 				router.ResponseInternalError(w, err.Error())
 				return
 			}
+			event := &model.Event{
+				Type: "DeleteMember",
+				Data: "{id: " + strconv.Itoa(deleteUserId) + "}",
+			}
+			Broadcast <- event
 			router.ResponseSuccess(w, "B.CHA.200.C7", "Delete member from channel successfully")
 			return
 		} else {
