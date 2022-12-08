@@ -16,11 +16,13 @@ var StaticSubRoute = chi.NewRouter()
 func init() {
 	StaticSubRoute.Group(func(_ chi.Router) {
 		StaticSubRoute.Handle("/*", fileServer)
-		StaticSubRoute.Get("/workspace", WorkspaceRoute)
-		StaticSubRoute.Get("/workspace/*", WorkspaceRoute)
+		StaticSubRoute.Get("/workspace", FrontEndRoute)
+		StaticSubRoute.Get("/workspace/*", FrontEndRoute)
+		StaticSubRoute.Get("/confirm-email", FrontEndRoute)
+		StaticSubRoute.Get("/forgot-password", FrontEndRoute)
 	})
 }
 
-func WorkspaceRoute(w http.ResponseWriter, r *http.Request) {
+func FrontEndRoute(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, fePath+"/index.html")
 }

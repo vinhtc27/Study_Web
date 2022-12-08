@@ -11,7 +11,7 @@ const (
 )
 
 const (
-	CLIENT_BASE_URL      = "https://example"
+	CLIENT_BASE_URL      = "http://w42g11.int3306.freeddns.org"
 	CONFIRM_EMAIL_PATH   = "/confirm-email"
 	FORGOT_PASSWORD_PATH = "/forgot-password"
 )
