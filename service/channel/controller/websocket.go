@@ -27,6 +27,7 @@ var (
 
 func init() {
 	go BroadcastMessages()
+	go Ping()
 }
 
 func HandlerChannelWebSocket(w http.ResponseWriter, r *http.Request) {
