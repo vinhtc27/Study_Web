@@ -58,6 +58,8 @@ func CreateChannel(w http.ResponseWriter, r *http.Request) {
 				Role:   constant.CHANNEL_ROLE_HOST,
 			},
 		},
+		CreatedDate: utils.Timestamp(),
+		UpdatedDate: utils.Timestamp(),
 	}
 	err = channel.CreateChannel()
 	if err != nil {
