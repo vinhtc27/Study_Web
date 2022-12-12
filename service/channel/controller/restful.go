@@ -379,6 +379,16 @@ func DeleteChannelMember(w http.ResponseWriter, r *http.Request) {
 			router.ResponseSuccess(w, "B.CHA.200.C8", "Host cannot be deleted")
 			return
 		}
+	} else if hostId != payload.UserId && deleteUserId == payload.UserId {
+		message := &model.Message{
+			Type:      model.DeleteType,
+			ChannelId: channel.Id,
+			SenderId:  payload.UserId,
+			Content:   strconv.Itoa(deleteUserId),
+			Timestamp: utils.Timestamp(),
+		}
+		Broadcast <- message
+		router.ResponseSuccess(w, "B.CHA.200.C7", "Leave channel successfully")
 	} else {
 		router.ResponseBadRequest(w, "B.CHA.400.C3", "You are not channel's host")
 		return
@@ -555,6 +565,11 @@ func UpdateTaskColumn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newTaskColumnDetail, err := json.Marshal(newTaskColumn.TaskColumnDetail)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "UpdateTaskColumn: json.Marshal(newTaskColumn.TaskColumnDetail)", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
 	var taskColumn = &model.TaskColumn{
 		Title:            newTaskColumn.Title,
 		TaskColumnDetail: newTaskColumnDetail,
