@@ -14,10 +14,14 @@ var ChannelSubRoute = chi.NewRouter()
 func init() {
 	ChannelSubRoute.Group(func(_ chi.Router) {
 		ChannelSubRoute.With(auth.JWT).Post("/create-channel", controller.CreateChannel)
+		ChannelSubRoute.With(auth.JWT).Get("/channelId={channelId}", controller.GetChannelById)
 		ChannelSubRoute.With(auth.JWT).Delete("/channelId={channelId}", controller.DeleteChannelById)
 		ChannelSubRoute.With(auth.JWT).Patch("/channelId={channelId}", controller.UpdateChannelById)
 		ChannelSubRoute.With(auth.JWT).Patch("/add/channelId={channelId}", controller.AddChannelMember)
 		ChannelSubRoute.With(auth.JWT).Delete("/delete/channelId={channelId}", controller.DeleteChannelMember)
-		ChannelSubRoute.With(auth.JWT).Handle("/chat/channelId={channelId}", http.HandlerFunc(controller.HandlerChannelWebSocket))
+		ChannelSubRoute.Handle("/chat", http.HandlerFunc(controller.HandlerChannelWebSocket))
+		ChannelSubRoute.With(auth.JWT).Patch("/addTaskColumn/channelId={channelId}", controller.AddTaskColumn)
+		ChannelSubRoute.With(auth.JWT).Post("/updateTaskColumn/channelId={channelId}", controller.UpdateTaskColumn)
+		ChannelSubRoute.With(auth.JWT).Delete("/deleteTaskColumn/channelId={channelId}", controller.DeleteTaskColumn)
 	})
 }

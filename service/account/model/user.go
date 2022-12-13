@@ -87,13 +87,9 @@ func (user *User) ConvertToUser(nullUser *NullUser) {
 
 // Insert new user into the database
 func (user *User) InsertUser() error {
-	channelsJSON, err := json.Marshal(user.Channels)
-	if err != nil {
-		return err
-	}
-	query := `INSERT INTO users (name, email, avatar, channels, createddate, updateddate) VALUES ( $1, $2, $3, $4, $5, $6) RETURNING id;`
+	query := `INSERT INTO users (name, email, avatar, createddate, updateddate) VALUES ( $1, $2, $3, $4, $5) RETURNING id;`
 
-	return db.PSQL.QueryRow(query, user.Name, user.Email, user.Avatar, channelsJSON, utils.Timestamp(), utils.Timestamp()).Scan(&user.Id)
+	return db.PSQL.QueryRow(query, user.Name, user.Email, user.Avatar, utils.Timestamp(), utils.Timestamp()).Scan(&user.Id)
 }
 
 func (user *User) UserIsExist() (bool, error) {
@@ -110,6 +106,26 @@ func (user *User) GetUserById() error {
 	query := `SELECT * FROM users WHERE id= $1;`
 
 	err := db.PSQL.QueryRow(query, user.Id).Scan(&nullUser.Id, &nullUser.Name, &nullUser.Dob, &nullUser.Sex, &nullUser.Avatar, &nullUser.Email, &nullUser.Address, &nullUser.Phone, &nullUser.IdCard, &nullUser.National, &channels, &nullUser.CreatedDate, &nullUser.UpdatedDate)
+	if err != nil {
+		return err
+	}
+
+	user.ConvertToUser(nullUser)
+	err = json.Unmarshal(channels, &user.Channels)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Select user by id from database
+func (user *User) GetUserByEmail() error {
+	nullUser := &NullUser{}
+	channels := []byte{}
+	query := `SELECT * FROM users WHERE email = $1;`
+
+	err := db.PSQL.QueryRow(query, user.Email).Scan(&nullUser.Id, &nullUser.Name, &nullUser.Dob, &nullUser.Sex, &nullUser.Avatar, &nullUser.Email, &nullUser.Address, &nullUser.Phone, &nullUser.IdCard, &nullUser.National, &channels, &nullUser.CreatedDate, &nullUser.UpdatedDate)
 	if err != nil {
 		return err
 	}

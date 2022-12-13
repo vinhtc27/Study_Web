@@ -11,7 +11,6 @@ import (
 	"web-service/pkg/crypt"
 	"web-service/pkg/log"
 	"web-service/pkg/router"
-	"web-service/pkg/server"
 )
 
 // ResGetJWT Struct
@@ -54,7 +53,7 @@ func JWT(next http.Handler) http.Handler {
 		}
 
 		// Get Authorization Claims From JWT Token
-		authClaims, err := jwtClaims(authPayload)
+		authClaims, err := JwtClaims(authPayload)
 		if err != nil {
 			router.ResponseInternalError(w, err.Error())
 			return
@@ -87,7 +86,7 @@ func GetJWTToken(payload interface{}) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwtClaimsData{
 		payload.(string),
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Duration(server.Config.GetInt64("JWT_EXPIRATION_TIME_HOURS")) * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(7 * 24 * time.Hour)).Unix(), //7day jwt expiration time
 		},
 	})
 
@@ -114,7 +113,7 @@ func GetJWTClaims(data string) (string, error) {
 }
 
 // JWTClaims Function to Get JWT Claims Information
-func jwtClaims(data string) (jwt.MapClaims, error) {
+func JwtClaims(data string) (jwt.MapClaims, error) {
 	// Convert Signing Key in Byte Format
 	signingKey, err := jwt.ParseRSAPublicKeyFromPEM(crypt.KeyRSACfg.BytePublic)
 	if err != nil {

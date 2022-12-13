@@ -3,7 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"net/mail"
 	"strconv"
 	"strings"
 	"time"
@@ -60,6 +62,13 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	var registerForm = &AuthenticationForm{}
 	_ = json.NewDecoder(r.Body).Decode(registerForm)
 
+	_, err := mail.ParseAddress(registerForm.Email)
+	if err != nil {
+		log.Println(log.LogLevelDebug, "CreateAccount: ParseAddress", err)
+		router.ResponseBadRequest(w, "B.ACC.400.C0", "invalid email address")
+		return
+	}
+
 	// Generate hashed password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerForm.Password), _defaultPasswordGenerateCost)
 	if err != nil {
@@ -71,11 +80,11 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	// Split name from gmail
 	nameFromEmail := strings.SplitN(string(registerForm.Email), "@", 2)[0]
 
+	userAvatarIndex := rand.Intn(len(constant.DEFAULT_USER_AVATAR_LIST))
 	var user = &model.User{
-		Name:     nameFromEmail,
-		Email:    registerForm.Email,
-		Avatar:   constant.DEFAULT_USER_AVATAR,
-		Channels: []model.ChannelId{{Id: -1}},
+		Name:   nameFromEmail,
+		Email:  registerForm.Email,
+		Avatar: constant.DEFAULT_USER_AVATAR_LIST[userAvatarIndex],
 	}
 
 	exist, err := user.UserIsExist()
@@ -218,7 +227,6 @@ func UpdateCurrentProfile(w http.ResponseWriter, r *http.Request) {
 	router.ResponseUpdated(w, "B.ACC.200.C12")
 }
 
-// GetProfileById Function to Get User's Profile by User ID
 func GetCurrentProfile(w http.ResponseWriter, r *http.Request) {
 	//Get Parameters JWT claims header
 	claims, err := auth.GetJWTClaims(r.Header.Get("X-JWT-Claims"))
@@ -249,6 +257,29 @@ func GetCurrentProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg := fmt.Sprintf("Get profile user id %d sussess!", payload.UserId)
+
+	router.ResponseSuccessWithData(w, "", msg, user)
+}
+
+func GetProfileByUserId(w http.ResponseWriter, r *http.Request) {
+	userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+	if err != nil {
+		log.Println(log.LogLevelDebug, "GetProfileByUserId: strconv.Atoi(chi.URLParam(r, \"userId\"))", err)
+		router.ResponseInternalError(w, err.Error())
+		return
+	}
+	var user = &model.User{
+		Id: userId,
+	}
+
+	err = user.GetUserById()
+	if err != nil {
+		router.ResponseInternalError(w, err.Error())
+		log.Println(log.LogLevelDebug, "GetProfileByUserId: GetUserById", err)
+		return
+	}
+
+	msg := fmt.Sprintf("Get profile user id %d sussess!", userId)
 
 	router.ResponseSuccessWithData(w, "", msg, user)
 }
@@ -412,11 +443,8 @@ func ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		if account.AccountStatus == constant.ACCOUNT_STATUS_INACTIVATED {
 			log.Println(log.LogLevelInfo, "ForgotPassword: Your account is inactivated", "")
 			router.ResponseBadRequest(w, "B.ACC.400.C4", "Your account is inactivated")
-		} else {
-			log.Println(log.LogLevelInfo, "ForgotPassword: Your account has been deactivated", "")
-			router.ResponseBadRequest(w, "B.ACC.400.C5", "Your account has been deactivated")
+			return
 		}
-		return
 	}
 
 	// Generate new hashed password

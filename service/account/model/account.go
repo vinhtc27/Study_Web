@@ -48,9 +48,9 @@ func (account *Account) GetAccountById() error {
 }
 
 func (account *Account) UpdateAccountPasswordById(password string) error {
-	query := `UPDATE accounts SET password = $1, updatedDate = $2 WHERE id= $3`
+	query := `UPDATE accounts SET password = $1, updatedDate = $2, accountstatus = $3 WHERE id= $4`
 
-	_, err := db.PSQL.Exec(query, password, utils.Timestamp(), account.Id)
+	_, err := db.PSQL.Exec(query, password, utils.Timestamp(), constant.ACCOUNT_STATUS_ACTIVATED, account.Id)
 
 	return err
 }

@@ -7,32 +7,39 @@ import (
 	"web-service/service/account/model"
 )
 
-type Channel struct {
-	Id          int       `json:"id"`
-	Name        string    `json:"name"`
-	Avatar      string    `json:"avatar"`
-	Members     []Member  `json:"members"`
-	Messages    []Message `json:"messages"`
-	Tasks       []Task    `json:"tasks"`
-	CreatedDate string    `json:"createdDate"`
-	UpdatedDate string    `json:"updatedDate"`
-}
+const (
+	ChatType   = "chat"
+	PingType   = "ping"
+	AddType    = "add"
+	DeleteType = "delete"
+)
 
 type Message struct {
+	Type      string `json:"type"`
 	ChannelId int    `json:"channelId"`
 	SenderId  int    `json:"senderId"`
 	Content   string `json:"content"`
 	Timestamp string `json:"timestamp"`
 }
-
-type Task struct {
-	Members     []Member `json:"members"`
-	TaskDetails []byte   `json:"taskDetails"`
-}
-
 type Member struct {
 	UserId int    `json:"userId"`
 	Role   string `json:"role"`
+}
+
+type Channel struct {
+	Id          int          `json:"id"`
+	Name        string       `json:"name"`
+	Avatar      string       `json:"avatar"`
+	Members     []Member     `json:"members"`
+	Messages    []Message    `json:"messages"`
+	TaskColumns []TaskColumn `json:"taskColumns"`
+	CreatedDate string       `json:"createdDate"`
+	UpdatedDate string       `json:"updatedDate"`
+}
+
+type TaskColumn struct {
+	Title            string `json:"title"`
+	TaskColumnDetail any    `json:"taskColumnDetail"`
 }
 
 // Insert new message to db
@@ -44,10 +51,7 @@ func (channel *Channel) CreateChannel() error {
 		return err
 	}
 
-	channel.CreatedDate = utils.Timestamp()
-	channel.UpdatedDate = channel.CreatedDate
-
-	err = db.PSQL.QueryRow(query, channel.Name, channel.Avatar, membersJSON, utils.Timestamp(), utils.Timestamp()).Scan(&channel.Id)
+	err = db.PSQL.QueryRow(query, channel.Name, channel.Avatar, membersJSON, channel.CreatedDate, channel.UpdatedDate).Scan(&channel.Id)
 	if err != nil {
 		return err
 	}
@@ -78,10 +82,10 @@ func (channel *Channel) UpdateChannelAvatar() error {
 func (channel *Channel) GetChannelById() error {
 	membersJSON := []byte{}
 	messagesJSON := []byte{}
-	tasksJSON := []byte{}
+	taskColumnsJSON := []byte{}
 
 	query := `SELECT * from channels WHERE id = $1`
-	err := db.PSQL.QueryRow(query, channel.Id).Scan(&channel.Id, &channel.Name, &channel.Avatar, &membersJSON, &messagesJSON, &tasksJSON, &channel.CreatedDate, &channel.UpdatedDate)
+	err := db.PSQL.QueryRow(query, channel.Id).Scan(&channel.Id, &channel.Name, &channel.Avatar, &membersJSON, &messagesJSON, &taskColumnsJSON, &channel.CreatedDate, &channel.UpdatedDate)
 	if err != nil {
 		return err
 	}
@@ -94,7 +98,7 @@ func (channel *Channel) GetChannelById() error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(tasksJSON, &channel.Tasks)
+	err = json.Unmarshal(taskColumnsJSON, &channel.TaskColumns)
 	if err != nil {
 		return err
 	}
@@ -113,8 +117,8 @@ func (channel *Channel) GetChannelHostId() (int, error) {
 }
 
 func (channel *Channel) UpdateChannelById() error {
-	query := `Update channels SET name = $1, avatar = $2 WHERE id = $3;`
-	_, err := db.PSQL.Exec(query, channel.Name, channel.Avatar, channel.Id)
+	query := `Update channels SET name = $1 WHERE id = $2;`
+	_, err := db.PSQL.Exec(query, channel.Name, channel.Id)
 	return err
 }
 
@@ -167,7 +171,7 @@ func (channel *Channel) DeleteMember(member *Member) error {
 	return err
 }
 
-func (channel *Channel) UpdateNewMessage(newMessage *Message) error {
+func (channel *Channel) AddMessage(newMessage *Message) error {
 	newMessageJSON, err := json.Marshal(newMessage)
 	if err != nil {
 		return err
@@ -176,5 +180,45 @@ func (channel *Channel) UpdateNewMessage(newMessage *Message) error {
 	query := `UPDATE channels SET messages = messages || $1::jsonb, updatedDate = $2 WHERE id = $3;`
 	_, err = db.PSQL.Exec(query, newMessageJSON, utils.Timestamp(), channel.Id)
 
+	return err
+}
+
+func (channel *Channel) AddTaskColumn(taskColumn *TaskColumn) error {
+	newTaskColumnJSON, err := json.Marshal(taskColumn)
+	if err != nil {
+		return err
+	}
+
+	query := `UPDATE channels SET taskcolumns = taskcolumns || $1::jsonb, updatedDate = $2 WHERE id = $3;`
+	_, err = db.PSQL.Exec(query, newTaskColumnJSON, utils.Timestamp(), channel.Id)
+
+	return err
+}
+
+func (channel *Channel) DeleteTaskColumnByTitle(taskColumnTitle string) error {
+	query := `UPDATE channels SET taskcolumns = (
+			SELECT jsonb_agg(elems) FROM channels,
+    		jsonb_array_elements(taskcolumns::jsonb) AS elems
+			WHERE elems ->> 'title' <> $1 AND id = $2)
+			WHERE id = $2;`
+
+	_, err := db.PSQL.Exec(query, taskColumnTitle, channel.Id)
+	return err
+}
+
+func (channel *Channel) UpdateTaskColumn(taskColumn *TaskColumn) error {
+
+	query := `WITH task AS (
+    SELECT ('{'||position -1|| ',taskColumnDetail}')::TEXT[] AS path
+    FROM channels c ,
+         jsonb_array_elements(taskcolumns) WITH ORDINALITY arr(taskColumn, position) 
+    where id = $2 and arr.position=(select arr.position  FROM channels, jsonb_array_elements(taskcolumns) with ordinality arr(title, position) 
+	WHERE id= $2 and arr.title->>'title' = $3)
+	)
+	update channels set taskcolumns = jsonb_set(taskcolumns, task.path, $1) from task 
+	where id = $2
+	`
+
+	_, err := db.PSQL.Exec(query, taskColumn.TaskColumnDetail, channel.Id, taskColumn.Title)
 	return err
 }

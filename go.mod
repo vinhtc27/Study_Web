@@ -6,7 +6,6 @@ require (
 	github.com/dgraph-io/ristretto v0.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v1.5.4
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.5.0
 	github.com/lib/pq v1.10.7
@@ -14,6 +13,8 @@ require (
 	github.com/spf13/viper v1.13.0
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 )
+
+require github.com/go-chi/cors v1.2.1
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect

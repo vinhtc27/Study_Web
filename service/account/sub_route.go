@@ -14,6 +14,7 @@ func init() {
 	AccountSubRoute.Group(func(_ chi.Router) {
 		AccountSubRoute.Post("/signup", controller.CreateAccount)
 		AccountSubRoute.Post("/signin", controller.Signin)
+		AccountSubRoute.Get("/profile/userId={userId}", controller.GetProfileByUserId)
 		AccountSubRoute.With(auth.JWT).Get("/confirm-email/uuid={uuid}", controller.ConfirmEmail)
 		AccountSubRoute.With(auth.JWT).Patch("/forgot-password/uuid={uuid}", controller.ForgotPassword)
 		AccountSubRoute.With(auth.JWT).Patch("/change-password", controller.ResetPassword)

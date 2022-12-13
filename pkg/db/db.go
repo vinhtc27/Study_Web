@@ -25,21 +25,5 @@ func init() {
 			// Do MySQL Database Connection
 			PSQL = psqlConnect()
 		}
-	case "mysql":
-		server.Config.SetDefault("DB_PORT", "3306")
-
-		mysqlCfg.Host = server.Config.GetString("DB_HOST")
-		mysqlCfg.Port = server.Config.GetString("DB_PORT")
-		mysqlCfg.User = server.Config.GetString("DB_USER")
-		mysqlCfg.Password = server.Config.GetString("DB_PASSWORD")
-		mysqlCfg.Name = server.Config.GetString("DB_NAME")
-
-		if len(mysqlCfg.Host) != 0 && len(mysqlCfg.Port) != 0 &&
-			len(mysqlCfg.User) != 0 && len(mysqlCfg.Password) != 0 &&
-			len(mysqlCfg.Name) != 0 {
-
-			// Do MySQL Database Connection
-			MySQL = mysqlConnect()
-		}
 	}
 }

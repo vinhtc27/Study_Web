@@ -57,9 +57,6 @@ func main() {
 		case "postgres":
 			log.Println("Stoped postgres !")
 			defer db.PSQL.Close()
-		case "mysql":
-			log.Println("Stoped mysql !")
-			defer db.MySQL.Close()
 		}
 	}
 
