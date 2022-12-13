@@ -382,6 +382,12 @@ func DeleteChannelMember(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if hostId != payload.UserId && deleteUserId == payload.UserId {
+		err = channel.DeleteMember(&model.Member{UserId: deleteUserId, Role: constant.CHANNEL_ROLE_MEMBER})
+		if err != nil {
+			log.Println(log.LogLevelDebug, "DeleteChannelMember: DeleteMember", err)
+			router.ResponseInternalError(w, err.Error())
+			return
+		}
 		message := &model.Message{
 			Type:      model.DeleteType,
 			ChannelId: channel.Id,
