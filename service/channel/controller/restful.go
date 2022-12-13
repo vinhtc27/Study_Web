@@ -120,6 +120,14 @@ func DeleteChannelById(w http.ResponseWriter, r *http.Request) {
 				router.ResponseInternalError(w, err.Error())
 				return
 			}
+			message := &model.Message{
+				Type:      model.DeleteType,
+				ChannelId: channel.Id,
+				SenderId:  hostId,
+				Content:   strconv.Itoa(member.UserId),
+				Timestamp: utils.Timestamp(),
+			}
+			Broadcast <- message
 		}
 		err = channel.DeleteChannelById()
 		if err != nil {
