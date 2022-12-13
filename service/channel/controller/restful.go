@@ -214,7 +214,6 @@ func UpdateChannelById(w http.ResponseWriter, r *http.Request) {
 	var channel = &model.Channel{
 		Id: channelId,
 	}
-	_ = json.NewDecoder(r.Body).Decode(&channel)
 
 	hostId, err := channel.GetChannelHostId()
 	if err != nil {
