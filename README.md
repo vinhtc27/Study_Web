@@ -11,3 +11,22 @@
 + Mở port 8080 ```expose 8080```
 + Chạy server ```./main```
 + Truy cập vào trang ```w42g11.int3306.freeddns.org``` để sử dụng trang web
+
+# Các tài khoản đã có sẵn
+
+## Tài khoản 1
++ email: ```trinhcongvinh27022002@gmail.com```
++ password: ```Vinh123@```
+
+## Tài khoản 2
++ email: ```20021389@vnu.edu.vn```
++ password: ```Tholoc_2002```
+
+## Tài khoản 3
++ email: ```mhoanganh25@gmail.com```
++ password: ```Hoanganh253```
+
+
+
+
+
