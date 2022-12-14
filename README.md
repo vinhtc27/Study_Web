@@ -1,4 +1,4 @@
-# Chattela Backend 
+# Chatella Backend 
 
 ## Các công nghệ sử dụng trong repository
 + Language: [golang](https://www.postgresql.org/docs/) 
