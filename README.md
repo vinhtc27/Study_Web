@@ -7,9 +7,6 @@
 + Cache: [dgraph-io/ristretto](https://github.com/dgraph-io/ristretto)
 + Router: [go-chi](https://go-chi.io/#/)
 + Websocket: [gorilla/websocket](https://github.com/gorilla/websocket)
-## Database
-![Database](https://gcdnb.pbrd.co/images/7jF9iJD2Tp0z.png?o=1)
-+ Id của các bảng đều được đánh index.
 ## Các bước build và chạy trên server
 + Do backend có kết nối với gmail để gửi email nên phải chắc chắn kết nối smtp không bị unreachable
 + Sử dụng lệnh ```ping smtp.gmail.com``` cho đến khi hết bị lỗi ```Network is unreachable``` và nhận được response
